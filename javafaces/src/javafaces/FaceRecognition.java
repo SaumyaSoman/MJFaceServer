@@ -474,11 +474,12 @@ public class FaceRecognition {
 		FaceRecognition fr=new FaceRecognition();
 		if (args.length< 3)
 			debug("Usage:  java FaceRecognition imageDir imageName numberOfEigenfaces");
-		String directoryName=args[0];		
-		String imageToMatch=args[1];
-		int selectedNumberOfEigenfaces=new Integer(args[2]).intValue();
+		String directoryName="E:/workspace/javafaces/gallery";		
+		String imageToMatch="E:/workspace/javafaces/probes/a.png";
+		
+		int selectedNumberOfEigenfaces=8;
 		String extension=getFileExtension(imageToMatch);		
-		debug("trying to match:"+imageToMatch+" using "+selectedNumberOfEigenfaces+" eigenfaces");
+		debug(directoryName+"trying to match:"+imageToMatch+" using "+selectedNumberOfEigenfaces+" eigenfaces");
 		long startTime=System.currentTimeMillis();
 		fr.checkCache(directoryName,extension,selectedNumberOfEigenfaces);
 		fr.reconstructFaces(selectedNumberOfEigenfaces);

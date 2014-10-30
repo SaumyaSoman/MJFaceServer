@@ -3,6 +3,8 @@ package javafaces;
 import java.io.Serializable;
 import java.util.List;
 public class FaceBundle implements Serializable{
+
+	private static final long serialVersionUID = 1L;
 	private double[][] adjFaces;
 	private List<String> imageFileNamesList;	
 	private double[] averageFace;
