@@ -16,14 +16,25 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 
 import javax.imageio.ImageIO;
 import javax.media.jai.JAI;
 import javax.media.jai.RenderedImageAdapter;
+
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
+import org.opencv.objdetect.CascadeClassifier;
 
 import edu.rutgers.winlab.EntityDetect;
 
@@ -475,34 +486,34 @@ public class FaceRecognition {
 		}		
 	}
 	
-	public static void main(String[] args) {	
+	public Set<String> recognize() {	
 		
-		EntityDetect e=new EntityDetect();
-		try {
-			e.run("C:\\Users\\Saumya\\Pictures\\pics\\gsa.jpg");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-//		FaceRecognition fr=new FaceRecognition();
-//		if (args.length< 3)
-//			debug("Usage:  java FaceRecognition imageDir imageName numberOfEigenfaces");
-//		String directoryName="E:/workspace/MiniJarvisFaceServer/gallery";		
-//		String imageToMatch="E:/workspace/MiniJarvisFaceServer/probes/a.png";
-//		
-//		int selectedNumberOfEigenfaces=16;
-//		String extension=getFileExtension(imageToMatch);		
-//		debug(directoryName+"trying to match:"+imageToMatch+" using "+selectedNumberOfEigenfaces+" eigenfaces");
-//		long startTime=System.currentTimeMillis();
-//		fr.checkCache(directoryName,extension,selectedNumberOfEigenfaces);
-//		fr.reconstructFaces(selectedNumberOfEigenfaces);
-//		
-//		MatchResult result=fr.findMatchResult(imageToMatch,selectedNumberOfEigenfaces);
-//		debug("the image :"+imageToMatch);
-//		debug("matches   :"+result.getMatchFileName());
-//		debug("at distance ="+result.getMatchDistance());
-//		long endTime=System.currentTimeMillis();
-//		debug("\ntotal time taken="+(endTime-startTime)+" millisecs");
+		Set<String> names=new HashSet<String>();
+		String directoryName="E:/workspace/MJFaceServer/gallery";		
+		String folderName="E:/workspace/MJFaceServer/probes"; 
+		File[] files = new File(folderName).listFiles();
+		for (File file : files) {
+			if (file.isFile() && file.getName().contains("png")) {
+				String imageToMatch=folderName+"/"+file.getName();
+				int selectedNumberOfEigenfaces=16;
+				String extension=getFileExtension(imageToMatch);		
+				debug(directoryName+"trying to match:"+imageToMatch+" using "+selectedNumberOfEigenfaces+" eigenfaces");
+				
+				checkCache(directoryName,extension,selectedNumberOfEigenfaces);
+				reconstructFaces(selectedNumberOfEigenfaces);
+				
+				MatchResult result=findMatchResult(imageToMatch,selectedNumberOfEigenfaces);
+				debug("the image :"+imageToMatch);
+				debug("matches   :"+result.getMatchFileName());
+				debug("at distance ="+result.getMatchDistance());
+				String annotation=result.getMatchFileName().replace(directoryName+"\\", "").split(".png")[0];
+				debug(annotation);
+				names.add(annotation);
+				
+			}
+		}	
+		return names;
+
 	}
 	public static String getFileExtension(String filename) {
 	    String ext = "";

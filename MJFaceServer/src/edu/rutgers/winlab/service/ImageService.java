@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Set;
 
 
 import javax.ws.rs.Consumes;
@@ -19,6 +20,9 @@ import com.sun.jersey.multipart.FormDataParam;
 
 import edu.rutgers.winlab.EntityDetect;
 import edu.rutgers.winlab.ImageSearch;
+import edu.rutgers.winlab.javafaces.FaceDetect;
+import edu.rutgers.winlab.javafaces.FaceRecognition;
+import edu.rutgers.winlab.response.Annotations;
 import edu.rutgers.winlab.response.SearchResponse;
 import edu.rutgers.winlab.response.WSResponse;
 
@@ -44,24 +48,57 @@ public class ImageService {
 
 		WSResponse response=new WSResponse();
 		try{
+			long startTime=System.currentTimeMillis();
 			saveToFile(uploadedInputStream, uploadedFileLocation);
-			String output=new EntityDetect().run(uploadedFileLocation);		
-			if(output==null){
+			FaceDetect faceDetect=new FaceDetect();
+			faceDetect.run(uploadedFileLocation);
+			FaceRecognition recognition= new FaceRecognition();
+			Set<String> names=recognition.recognize();
+			for (String name : names) {
+				System.out.println(name);
+			}
+			
+			String output="";
+			if(names==null){
 				output= "Cannot be recognized";
 			}else{
 				//if object/face is identified, do google search
-				ImageSearch search=new ImageSearch();
-				ArrayList<SearchResponse> searchResp=search.getSearchResults(uploadedFileLocation,output);
-				response.setResponses(searchResp);
+				ArrayList<Annotations> annotations=new ArrayList<Annotations>();
+				for (String name : names) {
+					Annotations annotation=new Annotations();
+					//ImageSearch search=new ImageSearch();
+					//ArrayList<SearchResponse> searchResp=search.getSearchResults(uploadedFileLocation,output);
+					annotation.setText(name);
+					annotations.add(annotation);
+				}
+				response.setAnnotations(annotations);
 			}
-			response.setText(output);
+			response.setResult(output);
+			long endTime=System.currentTimeMillis();
+			System.out.println("\ntotal time taken="+(endTime-startTime)+" millisecs");
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		return response;
 
 	}
-
+public static void main(String[] args) {
+	try{
+		String uploadedFileLocation = "C://Users/Saumya/Pictures/pics/sara1.jpg";
+		long startTime=System.currentTimeMillis();
+		FaceDetect faceDetect=new FaceDetect();
+		faceDetect.run(uploadedFileLocation);
+		FaceRecognition recognition= new FaceRecognition();
+		Set<String> names=recognition.recognize();
+		for (String name : names) {
+			System.out.println(name);
+		}
+		long endTime=System.currentTimeMillis();
+		System.out.println("\ntotal time taken="+(endTime-startTime)+" millisecs");
+	}catch(Exception e){
+		e.printStackTrace();
+	}
+}
 	/**
 	 * Method to save uploaded file to new location
 	 * @param uploadedInputStream InputStream
